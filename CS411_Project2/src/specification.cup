@@ -1,0 +1,235 @@
+import java_cup.runtime.*;
+
+parser code {:
+	// connect to scanner
+	scanner s;
+	Parser(scanner s) { this.s=s; }
+:}
+
+/* Defines how to connect to the scanner */
+init with {: s.init();  :};
+scan with {: return s.next_token(); :};
+
+/* Terminals (tokens returned to the scanner) */
+terminal        BOOLEAN,
+                BREAK,
+                CLASS,
+                ID,
+                DOUBLE,
+                ELSE,
+                EXTENDS,
+                FOR,
+                IF,
+                IMPLEMENTS,
+                INT,
+                INTERFACE,
+                NEWARRAY,
+                PRINTLN,
+                READLN,
+                RETURN,
+                STRING,
+                VOID,
+                WHILE,
+                PLUS,
+                MINUS,
+                MULTIPLICATION,
+                DIVISION,
+                MOD,
+                LESS,
+                LESSEQUAL,
+                GREATER,
+                GREATEREQUAL,
+                EQUAL,
+                NOTEQUAL,
+                AND,
+                OR,
+                NOT,
+                ASSIGNOP,
+                SEMICOLON,
+                COMMA,
+                PERIOD,
+                LEFTPAREN,
+                RIGHTPAREN,
+                LEFTBRACKET,
+                RIGHTBRACKET,
+                LEFTBRACE,
+                RIGHTBRACE,
+                STRINGCONSTANT,
+                BOOLEANCONSTANT,
+                DOUBLECONSTANT,
+                INTCONSTANT;
+
+/* Non-terminals */
+nonterminal program,
+            decl,
+            decl_prime,
+            variabledecl,
+            variable,
+            variable_prime,
+            type,
+            functiondecl,
+            formals,
+            classdecl,
+            id_prime,
+            field_prime,
+            field,
+            interfacedecl,
+            prototype_prime,
+            prototype,
+            stmtblock,
+            variabledecl_prime,
+            stmtt,
+            stmt,
+            ifstmt,
+            whilestmt,
+            forstmt,
+            breakstmt,
+            returnstmt,
+            printstmt,
+            expr_prime_prime,
+            expr_prime,
+            expr,
+            lvalue,
+            call,
+            actuals,
+            constant,
+            empty;
+
+/* Precedences */
+precedence nonassoc ASSIGNOP;
+precedence left OR;
+precedence left AND;
+precedence nonassoc EQUAL, NOTEQUAL;
+precedence nonassoc LESS, LESSEQUAL, GREATER, GREATEREQUAL;
+precedence left PLUS, MINUS;
+precedence left MULTIPLICATION, DIVISION, MOD;
+precedence left NOT;
+precedence nonassoc LEFTBRACE, RIGHTBRACE, PERIOD;
+precedence nonassoc LEFTPAREN, RIGHTPAREN;
+
+
+
+/* Grammar Rules */
+
+program ::= decl_prime           {: System.out.println("[reduce 1]"); :}
+        ;
+decl_prime   ::= decl_prime decl      {: System.out.println("[reduce 2]"); :}
+        |   decl            {: System.out.println("[reduce 3]"); :}
+        ;
+decl    ::= variabledecl   {: System.out.println("[reduce 4]"); :}
+        |   functiondecl     {: System.out.println("[reduce 5]"); :}
+        |   classdecl       {: System.out.println("[reduce 6]"); :}
+        |   interfacedecl   {: System.out.println("[reduce 7]"); :}
+        ;
+variabledecl    ::= variable SEMICOLON      {: System.out.println("[reduce 8]"); :}
+                ;
+variable    ::= type ID     {: System.out.println("[reduce 9]"); :}
+            ;
+type    ::= INT     {: System.out.println("[reduce 10]"); :}
+        |   DOUBLE  {: System.out.println("[reduce 11]"); :}
+        |   BOOLEAN {: System.out.println("[reduce 12]"); :}
+        |   STRING  {: System.out.println("[reduce 13]"); :}
+        |   type LEFTBRACKET RIGHTBRACKET   {: System.out.println("[reduce 14]"); :}
+        |   ID   {: System.out.println("[reduce 15]"); :}
+        ;
+functiondecl    ::= type ID LEFTPAREN formals RIGHTPAREN stmtblock  {: System.out.println("[reduce 15]"); :}
+                |   VOID ID LEFTPAREN formals RIGHTPAREN stmtblock  {: System.out.println("[reduce 16]"); :}
+                ;
+formals ::= variable_prime           {: System.out.println("[reduce 17]"); :}
+        |   empty               {: System.out.println("[reduce 19]"); :}
+        ;
+variable_prime   ::= variable COMMA variable_prime  {: System.out.println("[reduce 20]"); :}
+            |   variable                       {: System.out.println("[reduce 21]"); :}
+            ;
+classdecl   ::= CLASS ID LESS EXTENDS ID GREATER LESS IMPLEMENTS id_prime GREATER LEFTBRACE field_prime RIGHTBRACE {: System.out.println("[reduce 21]"); :}
+            ;
+id_prime ::= ID COMMA id_prime    {: System.out.println("[reduce 22]"); :}
+    |   ID           {: System.out.println("[reduce 23]"); :}
+    ;
+field_prime  ::= field_prime field    {: System.out.println("[reduce 24]"); :}
+        |   empty           {: System.out.println("[reduce 25]"); :}
+        ;
+field   ::= variabledecl    {: System.out.println("[reduce 26]"); :}
+        |   functiondecl    {: System.out.println("[reduce 27]"); :}
+        ;
+interfacedecl   ::= INTERFACE ID LEFTBRACE prototype_prime RIGHTBRACE    {: System.out.println("[reduce 28]"); :}
+                ;
+prototype_prime  ::= prototype_prime prototype    {: System.out.println("[reduce 29]"); :}
+            |   empty                   {: System.out.println("[reduce 30]"); :}
+            ;
+prototype   ::= type ID LEFTPAREN formals RIGHTPAREN SEMICOLON {: System.out.println("[reduce 31]"); :}
+            |   VOID ID LEFTPAREN formals RIGHTPAREN SEMICOLON {: System.out.println("[reduce 32]"); :}
+            ;
+stmtblock   ::= LEFTBRACE variabledecl_prime stmtt RIGHTBRACE    {: System.out.println("[reduce 33]"); :}
+            ;
+variabledecl_prime   ::= variabledecl_prime variabledecl  {: System.out.println("[reduce 34]"); :}
+                |   empty                       {: System.out.println("[reduce 35]"); :}
+                ;
+stmtt   ::= stmtt stmt  {: System.out.println("[reduce 36]"); :}
+        |   empty       {: System.out.println("[reduce 37]"); :}
+        ;
+stmt    ::= LESS expr GREATER SEMICOLON {: System.out.println("[reduce 38]"); :}
+        |   ifstmt                      {: System.out.println("[reduce 39]"); :}
+        |   whilestmt                   {: System.out.println("[reduce 40]"); :}
+        |   forstmt                     {: System.out.println("[reduce 41]"); :}
+        |   breakstmt                   {: System.out.println("[reduce 42]"); :}
+        |   returnstmt                  {: System.out.println("[reduce 43]"); :}
+        |   printstmt                   {: System.out.println("[reduce 44]"); :}
+        |   stmtblock                   {: System.out.println("[reduce 45]"); :}
+        ;
+ifstmt  ::= IF LEFTPAREN expr RIGHTPAREN stmt LESS ELSE stmt GREATER    {: System.out.println("[reduce 46]"); :}
+        ;
+whilestmt   ::= WHILE LEFTPAREN expr RIGHTPAREN stmt    {: System.out.println("[reduce 47]"); :}
+            ;
+forstmt ::= FOR LEFTPAREN LESS expr GREATER SEMICOLON LESS expr GREATER RIGHTPAREN stmt {: System.out.println("[reduce 48]"); :}
+        ;
+breakstmt   ::=   BREAK SEMICOLON {: System.out.println("[reduce 49]"); :}
+            ;
+returnstmt ::= RETURN LESS expr GREATER SEMICOLON   {: System.out.println("[reduce 50]"); :}
+        ;
+printstmt ::= PRINTLN LEFTPAREN expr_prime RIGHTPAREN SEMICOLON   {: System.out.println("[reduce 51]"); :}
+        ;
+expr_prime ::= expr COMMA expr_prime   {: System.out.println("[reduce 52]"); :}
+        |   expr            {: System.out.println("[reduce 53]"); :}
+        ;
+expr ::= lvalue ASSIGNOP expr   {: System.out.println("[reduce 54]"); :}
+        |   constant     {: System.out.println("[reduce 55]"); :}
+        |   lvalue     {: System.out.println("[reduce 56]"); :}
+        |   call     {: System.out.println("[reduce 57]"); :}
+        |   LEFTPAREN expr RIGHTPAREN     {: System.out.println("[reduce 58]"); :}
+        |   expr PLUS expr    {: System.out.println("[reduce 59]"); :}
+        |   expr MINUS expr    {: System.out.println("[reduce 60]"); :}
+        |   expr MULTIPLICATION expr    {: System.out.println("[reduce 61]"); :}
+        |   expr DIVISION expr    {: System.out.println("[reduce 62]"); :}
+        |   expr MOD expr    {: System.out.println("[reduce 63]"); :}
+        |   MINUS expr    {: System.out.println("[reduce 64]"); :}
+        |   expr LESS expr    {: System.out.println("[reduce 65]"); :}
+        |   expr LESSEQUAL expr    {: System.out.println("[reduce 66]"); :}
+        |   expr GREATER expr    {: System.out.println("[reduce 67]"); :}
+        |   expr GREATEREQUAL expr    {: System.out.println("[reduce 68]"); :}
+        |   expr EQUAL expr    {: System.out.println("[reduce 69]"); :}
+        |   expr NOTEQUAL expr    {: System.out.println("[reduce 70]"); :}
+        |   expr AND expr    {: System.out.println("[reduce 71]"); :}
+        |   expr OR expr    {: System.out.println("[reduce 72]"); :}
+        |   NOT expr READLN LEFTPAREN RIGHTPAREN    {: System.out.println("[reduce 73]"); :}
+        |   NEWARRAY LEFTPAREN INTCONSTANT COMMA type RIGHTPAREN    {: System.out.println("[reduce 74]"); :}
+        ;
+lvalue ::= ID   {: System.out.println("[reduce 75]"); :}
+        |   lvalue LEFTBRACKET expr RIGHTBRACKET    {: System.out.println("[reduce 76]"); :}
+        ;
+call ::= ID LEFTPAREN actuals RIGHTPAREN   {: System.out.println("[reduce 77]"); :}
+        |   ID PERIOD ID LEFTPAREN actuals RIGHTPAREN     {: System.out.println("[reduce 78]"); :}
+        ;
+actuals ::= expr_prime_prime   {: System.out.println("[reduce 79]"); :}
+        |   empty   {: System.out.println("[reduce 80]"); :}
+        ;
+expr_prime_prime  ::= expr COMMA expr_prime_prime   {: System.out.println("[reduce 81]"); :}
+        |   expr                {: System.out.println("[reduce 81]"); :}
+        ;
+constant ::= BOOLEANCONSTANT   {: System.out.println("[reduce 81]"); :}
+         |  STRINGCONSTANT   {: System.out.println("[reduce 82]"); :}
+         |  DOUBLECONSTANT   {: System.out.println("[reduce 83]"); :}
+         |  INTCONSTANT   {: System.out.println("[reduce 84]"); :}
+         ;
+empty ::=       {: System.out.println("[reduce 85]"); :}
+        ;
